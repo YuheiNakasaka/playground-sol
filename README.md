@@ -13,3 +13,15 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+Test:
+
+```
+yarn run test
+```
+
+Testnet deployment:
+
+```shell
+npx hardhat run --network ropsten scripts/deploy.js
+```
