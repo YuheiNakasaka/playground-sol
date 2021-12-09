@@ -24,8 +24,15 @@ module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "localhost",
   networks: {
+    hardhat: {
+      // 過去のある時点のステートにアクセスしたい場合にAchive Nodeへアクセスするための設定
+      forking: {
+        url: process.env.ROPSTEN_ALCHEMY_URL || "",
+        blockNumber: 11574821,
+      },
+    },
     ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+      url: process.env.ROPSTEN_INFURA_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
