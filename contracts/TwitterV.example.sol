@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 import "./TwitterV1.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract TwitterV2 is TwitterV1 {
+contract TwitterVXXX is TwitterV1 {
   bool initializedV2;
 
   function initializeV2() public {

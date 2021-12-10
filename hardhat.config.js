@@ -24,6 +24,9 @@ module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "localhost",
   networks: {
+    localhost: {
+      url: "http://127.0.0.1:8545",
+    },
     hardhat: {
       // 過去のある時点のステートにアクセスしたい場合にAchive Nodeへアクセスするための設定
       forking: {

@@ -16,6 +16,7 @@ async function main() {
 
   await twitter.deployed();
 
+  console.log("Deployed!: ", twitter);
   console.log("Twitter deployed to:", twitter.address);
 }
 
