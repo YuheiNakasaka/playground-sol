@@ -1,9 +1,13 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "dev:node": "npx hardhat node",
-    "dev:build": "npx hardhat compile",
-    "dev:deploy": "npx hardhat run scripts/deploy.js",
+    "dev:node": "NODE_ENV=local npx hardhat node",
+    "dev:build": "NODE_ENV=local npx hardhat compile",
+    "dev:deploy": "NODE_ENV=local npx hardhat run scripts/deploy.js --network=localhost",
+    "dev:upgrade": "NODE_ENV=local npx hardhat run scripts/upgrade.js --network=localhost",
+    "dev:tweet": "NODE_ENV=local npx hardhat run scripts/tweet.js --network=localhost",
+    "prod:deploy": "NODE_ENV=local npx hardhat run scripts/deploy.js --network=ropsten",
+    "prod:upgrade": "NODE_ENV=local npx hardhat run scripts/upgrade.js --network=ropsten",
     "test": "npx hardhat test"
   },
   "devDependencies": {

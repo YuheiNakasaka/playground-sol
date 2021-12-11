@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const CONTRACT_ADDRESS = "0x7223fF34EED050aeb29432521b084Efb8d296914";
+const CONTRACT_ADDRESS = process.env.PROXY_CONTRACT_ADDRESS;
 
 async function tweet() {
   const provider = new ethers.providers.JsonRpcProvider(
