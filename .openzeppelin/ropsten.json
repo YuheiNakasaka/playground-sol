@@ -47,6 +47,11 @@
       "address": "0x60C164F4368139e588B0c5e11A9596988DCBEe3c",
       "txHash": "0x861f216ce7aae291f129d772863ff0e980d55e537728a6f38dacab6db14f101a",
       "kind": "transparent"
+    },
+    {
+      "address": "0xe71997743EA8fEA65EcB197374c71b3Ed0bfF635",
+      "txHash": "0x6f7ce060781ddf69120cf8d215cd02b94a6dedb7a0da97406f00b0ac3c99214f",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -226,6 +231,97 @@
                 "type": "t_address"
               }
             ]
+          }
+        }
+      }
+    },
+    "d27ded282d59f526aa586c7e9b2a01cc78877b04c0eca1f396b63ebe9753c602": {
+      "address": "0xc9972854EE3F29622f80d478729A18a6eBC6B47a",
+      "txHash": "0x25305e8c5307087811d88d842c7705f1486e833d906a47543021bf1ec5fc98ab",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "tweets",
+            "type": "t_array(t_struct(Tweet)96_storage)dyn_storage",
+            "src": "contracts/TwitterV1.sol:19"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "followings",
+            "type": "t_mapping(t_address,t_array(t_struct(User)99_storage)dyn_storage)",
+            "src": "contracts/TwitterV1.sol:20"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "followers",
+            "type": "t_mapping(t_address,t_array(t_struct(User)99_storage)dyn_storage)",
+            "src": "contracts/TwitterV1.sol:21"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(Tweet)96_storage)dyn_storage": {
+            "label": "struct TwitterV1.Tweet[]"
+          },
+          "t_struct(Tweet)96_storage": {
+            "label": "struct TwitterV1.Tweet",
+            "members": [
+              {
+                "label": "content",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "author",
+                "type": "t_address"
+              },
+              {
+                "label": "timestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "attachment",
+                "type": "t_string_storage"
+              }
+            ]
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_array(t_struct(User)99_storage)dyn_storage)": {
+            "label": "mapping(address => struct TwitterV1.User[])"
+          },
+          "t_array(t_struct(User)99_storage)dyn_storage": {
+            "label": "struct TwitterV1.User[]"
+          },
+          "t_struct(User)99_storage": {
+            "label": "struct TwitterV1.User",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }

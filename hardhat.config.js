@@ -38,6 +38,7 @@ module.exports = {
       url: process.env.ROPSTEN_INFURA_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 50000000000,
     },
   },
 };

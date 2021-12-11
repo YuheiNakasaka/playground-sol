@@ -27,17 +27,17 @@ contract TwitterV1 is Initializable {
 
     function initialize() public initializer {}
 
-    function setTweet(string memory _tweet, string memory _image_data)
+    function setTweet(string memory _tweet, string memory _imageData)
         public
         virtual
     {
-        if (bytes(_image_data).length > 0) {
+        if (bytes(_imageData).length > 0) {
             tweets.push(
                 Tweet({
                     content: _tweet,
                     author: msg.sender,
                     timestamp: block.timestamp,
-                    attachment: _image_data
+                    attachment: _imageData
                 })
             );
         } else {
