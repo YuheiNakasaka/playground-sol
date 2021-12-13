@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -11,49 +11,52 @@ import "./TweetValidation.sol";
 import "./TweetConstant.sol";
 
 contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
+    struct User {
+        address id;
+    }
+
     struct Tweet {
         uint256 tokenId;
         string content;
         address author;
         uint256 timestamp;
         string attachment;
+        address[] likes; // want to use User[] but not supported yet.
     }
 
-    struct User {
-        address id;
-    }
-
+    // For global access
     Tweet[] public tweets;
+
+    // For specific users
     mapping(address => User[]) public followings;
     mapping(address => User[]) public followers;
+    mapping(address => Tweet[]) public likes;
 
     event Tweeted(address indexed sender, string tweet);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
-        __ERC721_init("Tweet", "TWT");
+        __ERC721_init("TwitterETH", "TWTE");
     }
 
     function initialize() public initializer {}
 
+    // Set tweet to storage and mint it as NFT. Text tweets and image tweets are supported. Tweet can not be deleted by anyone.
     function setTweet(string memory _tweet, string memory _imageData)
         public
-        payable
         virtual
     {
         uint256 supply = totalSupply();
         uint256 tokenId = supply + 1;
 
+        Tweet memory tweet;
         if (TweetValidation.notEmpty(_imageData)) {
-            tweets.push(
-                Tweet({
-                    tokenId: tokenId,
-                    content: _tweet,
-                    author: msg.sender,
-                    timestamp: block.timestamp,
-                    attachment: _imageData
-                })
-            );
+            tweet.tokenId = tokenId;
+            tweet.content = _tweet;
+            tweet.author = msg.sender;
+            tweet.timestamp = block.timestamp;
+            tweet.attachment = _imageData;
+            tweets.push(tweet);
             _safeMint(msg.sender, supply + 1);
         } else {
             require(TweetValidation.notEmpty(_tweet), "Tweet is too short");
@@ -61,15 +64,12 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
                 TweetValidation.noSpace(_tweet),
                 "Space only tweet is not allowed."
             );
-            tweets.push(
-                Tweet({
-                    tokenId: tokenId,
-                    content: _tweet,
-                    author: msg.sender,
-                    timestamp: block.timestamp,
-                    attachment: ""
-                })
-            );
+            tweet.tokenId = tokenId;
+            tweet.content = _tweet;
+            tweet.author = msg.sender;
+            tweet.timestamp = block.timestamp;
+            tweet.attachment = "";
+            tweets.push(tweet);
             _safeMint(msg.sender, supply + 1);
         }
 
@@ -214,6 +214,33 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         return _following;
     }
 
+    // Like is kept forever. can not be removed.
+    function addLike(uint256 _tokenId) public virtual {
+        // Avoid duplicate likes.
+        for (uint256 i = 0; i < likes[msg.sender].length; i++) {
+            if (likes[msg.sender][i].tokenId == _tokenId) {
+                return;
+            }
+        }
+
+        for (uint256 i = 0; i < tweets.length; i++) {
+            if (tweets[i].tokenId == _tokenId) {
+                tweets[i].likes.push(msg.sender);
+                likes[msg.sender].push(tweets[i]);
+            }
+        }
+    }
+
+    // Get my like's tweets.
+    function getLikes(address _address)
+        public
+        view
+        virtual
+        returns (Tweet[] memory)
+    {
+        return likes[_address];
+    }
+
     function tokenURI(uint256 _tokenId)
         public
         view
@@ -228,9 +255,11 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         return buildMetaData(_tokenId);
     }
 
+    // Build metadata for ERC721 token.
     function buildMetaData(uint256 _tokenId)
         public
         view
+        virtual
         returns (string memory)
     {
         Tweet memory tweet;
