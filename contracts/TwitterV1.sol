@@ -13,6 +13,7 @@ import "./TweetConstant.sol";
 contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     struct User {
         address id;
+        string iconUrl;
     }
 
     struct Tweet {
@@ -22,10 +23,12 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         uint256 timestamp;
         string attachment;
         address[] likes; // want to use User[] but not supported yet.
+        string iconUrl;
     }
 
     // For global access
     Tweet[] public tweets;
+    mapping(address => User) public users;
 
     // For specific users
     mapping(address => User[]) public followings;
@@ -49,6 +52,11 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         uint256 supply = totalSupply();
         uint256 tokenId = supply + 1;
 
+        string memory iconUrl;
+        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+            iconUrl = users[msg.sender].iconUrl;
+        }
+
         Tweet memory tweet;
         if (TweetValidation.notEmpty(_imageData)) {
             tweet.tokenId = tokenId;
@@ -56,6 +64,7 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             tweet.author = msg.sender;
             tweet.timestamp = block.timestamp;
             tweet.attachment = _imageData;
+            tweet.iconUrl = iconUrl;
             tweets.push(tweet);
             _safeMint(msg.sender, supply + 1);
         } else {
@@ -68,7 +77,7 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             tweet.content = _tweet;
             tweet.author = msg.sender;
             tweet.timestamp = block.timestamp;
-            tweet.attachment = "";
+            tweet.iconUrl = iconUrl;
             tweets.push(tweet);
             _safeMint(msg.sender, supply + 1);
         }
@@ -117,6 +126,10 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         virtual
         returns (Tweet[] memory)
     {
+        if (tweets.length == 0) {
+            return new Tweet[](0);
+        }
+
         uint256 count = 0;
         for (uint256 i = 0; i < tweets.length; i++) {
             if (tweets[i].author == _address) {
@@ -139,6 +152,15 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     function follow(address _address) public virtual {
         require(_address != msg.sender, "You cannot follow yourself.");
 
+        string memory myIconUrl;
+        string memory otherIconUrl;
+        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+            myIconUrl = users[msg.sender].iconUrl;
+        }
+        if (TweetValidation.notEmpty(users[_address].iconUrl)) {
+            otherIconUrl = users[_address].iconUrl;
+        }
+
         bool exists = false;
         for (uint256 i = 0; i < followings[msg.sender].length; i++) {
             if (followings[msg.sender][i].id == _address) {
@@ -146,7 +168,9 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             }
         }
         if (!exists) {
-            followings[msg.sender].push(User({id: _address}));
+            followings[msg.sender].push(
+                User({id: _address, iconUrl: otherIconUrl})
+            );
         }
 
         exists = false;
@@ -156,7 +180,9 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             }
         }
         if (!exists) {
-            followers[_address].push(User({id: msg.sender}));
+            followers[_address].push(
+                User({id: msg.sender, iconUrl: myIconUrl})
+            );
         }
     }
 
@@ -239,6 +265,23 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         returns (Tweet[] memory)
     {
         return likes[_address];
+    }
+
+    // Get icon.
+    function getUserIcon(address _address)
+        public
+        view
+        virtual
+        returns (string memory)
+    {
+        return users[_address].iconUrl;
+    }
+
+    // Change iconUrl of user.
+    // Anyone can set up any iconUrl which is not own NFT...
+    function changeIconUrl(string memory _url) public virtual {
+        users[msg.sender].id = msg.sender;
+        users[msg.sender].iconUrl = _url;
     }
 
     function tokenURI(uint256 _tokenId)
