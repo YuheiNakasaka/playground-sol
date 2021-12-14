@@ -232,4 +232,22 @@ describe("Twitter", function () {
       expect(comment.author).to.equal(owner.address);
     });
   });
+
+  describe("addRetweet", function () {
+    it("Should add the comment", async function () {
+      const [owner] = await ethers.getSigners();
+      const Twitter = await ethers.getContractFactory("TwitterV1");
+      const twitter = await Twitter.deploy();
+      await twitter.deployed();
+
+      let tx = await twitter.setTweet("Hello, world!", "");
+      await tx.wait();
+
+      await twitter.addRetweet(1);
+      await tx.wait();
+
+      const tweet = await twitter.getTweet(1);
+      expect(tweet.retweets.includes(owner.address)).to.be.true;
+    });
+  });
 });

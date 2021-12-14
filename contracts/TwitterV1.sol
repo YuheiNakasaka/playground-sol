@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -11,6 +10,10 @@ import "./TweetValidation.sol";
 import "./TweetConstant.sol";
 
 contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
+    using Strings for uint256;
+    using TweetValidation for string;
+    using Base64 for bytes;
+
     struct User {
         address id;
         string iconUrl;
@@ -23,6 +26,7 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         uint256 timestamp;
         string attachment;
         address[] likes; // want to use User[] but not supported yet.
+        address[] retweets;
         string iconUrl;
     }
 
@@ -49,20 +53,17 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     function initialize() public initializer {}
 
     // Set tweet to storage and mint it as NFT. Text tweets and image tweets are supported. Tweet can not be deleted by anyone.
-    function setTweet(string memory _tweet, string memory _imageData)
-        public
-        virtual
-    {
+    function setTweet(string memory _tweet, string memory _imageData) public virtual {
         uint256 supply = totalSupply();
         uint256 tokenId = supply + 1;
 
         string memory iconUrl;
-        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+        if (users[msg.sender].iconUrl.notEmpty()) {
             iconUrl = users[msg.sender].iconUrl;
         }
 
         Tweet memory tweet;
-        if (TweetValidation.notEmpty(_imageData)) {
+        if (_imageData.notEmpty()) {
             tweet.tokenId = tokenId;
             tweet.content = _tweet;
             tweet.author = msg.sender;
@@ -72,11 +73,8 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             tweets.push(tweet);
             _safeMint(msg.sender, supply + 1);
         } else {
-            require(TweetValidation.notEmpty(_tweet), "Tweet is too short");
-            require(
-                TweetValidation.noSpace(_tweet),
-                "Space only tweet is not allowed."
-            );
+            require(_tweet.notEmpty(), "TooShort");
+            require(_tweet.noSpace(), "NoSpace");
             tweet.tokenId = tokenId;
             tweet.content = _tweet;
             tweet.author = msg.sender;
@@ -89,34 +87,19 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         emit Tweeted(msg.sender, _tweet);
     }
 
-    function getTimeline(int256 offset, int256 limit)
-        public
-        view
-        virtual
-        returns (Tweet[] memory)
-    {
-        require(offset >= 0, "Offset must be greater than or equal to 0.");
+    function getTimeline(int256 offset, int256 limit) public view virtual returns (Tweet[] memory) {
+        require(offset >= 0);
 
         if (uint256(offset) > tweets.length) {
             return new Tweet[](0);
         }
 
         int256 tweetLength = int256(tweets.length);
-        int256 length = tweetLength - offset > limit
-            ? limit
-            : tweetLength - offset;
+        int256 length = tweetLength - offset > limit ? limit : tweetLength - offset;
         Tweet[] memory result = new Tweet[](uint256(length));
         uint256 idx = 0;
-        for (
-            int256 i = length - offset - 1;
-            length - offset - limit <= i;
-            i--
-        ) {
-            if (
-                i <= length - offset - 1 &&
-                length - offset - limit <= i &&
-                i >= 0
-            ) {
+        for (int256 i = length - offset - 1; length - offset - limit <= i; i--) {
+            if (i <= length - offset - 1 && length - offset - limit <= i && i >= 0) {
                 result[idx] = tweets[uint256(i)];
                 idx++;
             }
@@ -124,12 +107,7 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         return result;
     }
 
-    function getUserTweets(address _address)
-        public
-        view
-        virtual
-        returns (Tweet[] memory)
-    {
+    function getUserTweets(address _address) public view virtual returns (Tweet[] memory) {
         if (tweets.length == 0) {
             return new Tweet[](0);
         }
@@ -153,33 +131,29 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         return result;
     }
 
-    function getTweet(uint256 _tokenId)
-        public
-        view
-        virtual
-        returns (Tweet memory)
-    {
+    function getTweet(uint256 _tokenId) public view virtual returns (Tweet memory) {
         Tweet memory result;
         if (tweets.length == 0) {
             return result;
         }
         for (uint256 i = 0; i < tweets.length; i++) {
             if (tweets[i].tokenId == _tokenId) {
-                return tweets[i];
+                result = tweets[i];
+                break;
             }
         }
         return result;
     }
 
     function follow(address _address) public virtual {
-        require(_address != msg.sender, "You cannot follow yourself.");
+        require(_address != msg.sender);
 
         string memory myIconUrl;
         string memory otherIconUrl;
-        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+        if (users[msg.sender].iconUrl.notEmpty()) {
             myIconUrl = users[msg.sender].iconUrl;
         }
-        if (TweetValidation.notEmpty(users[_address].iconUrl)) {
+        if (users[_address].iconUrl.notEmpty()) {
             otherIconUrl = users[_address].iconUrl;
         }
 
@@ -190,9 +164,7 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             }
         }
         if (!exists) {
-            followings[msg.sender].push(
-                User({id: _address, iconUrl: otherIconUrl})
-            );
+            followings[msg.sender].push(User({id: _address, iconUrl: otherIconUrl}));
         }
 
         exists = false;
@@ -202,22 +174,16 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             }
         }
         if (!exists) {
-            followers[_address].push(
-                User({id: msg.sender, iconUrl: myIconUrl})
-            );
+            followers[_address].push(User({id: msg.sender, iconUrl: myIconUrl}));
         }
     }
 
     function unfollow(address _address) public virtual {
-        require(_address != msg.sender, "You cannot unfollow yourself.");
+        require(_address != msg.sender);
 
         for (uint256 i = 0; i < followings[msg.sender].length; i++) {
             if (followings[msg.sender][i].id == _address) {
-                for (
-                    uint256 j = i;
-                    j < followings[msg.sender].length - 1;
-                    j++
-                ) {
+                for (uint256 j = i; j < followings[msg.sender].length - 1; j++) {
                     followings[msg.sender][j] = followings[msg.sender][j + 1];
                 }
                 followings[msg.sender].pop();
@@ -234,21 +200,11 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         }
     }
 
-    function getFollowings(address _address)
-        public
-        view
-        virtual
-        returns (User[] memory)
-    {
+    function getFollowings(address _address) public view virtual returns (User[] memory) {
         return followings[_address];
     }
 
-    function getFollowers(address _address)
-        public
-        view
-        virtual
-        returns (User[] memory)
-    {
+    function getFollowers(address _address) public view virtual returns (User[] memory) {
         return followers[_address];
     }
 
@@ -256,7 +212,8 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
         bool _following = false;
         for (uint256 i = 0; i < followings[msg.sender].length; i++) {
             if (followings[msg.sender][i].id == _address) {
-                return true;
+                _following = true;
+                break;
             }
         }
         return _following;
@@ -280,22 +237,26 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     }
 
     // Get my like's tweets.
-    function getLikes(address _address)
-        public
-        view
-        virtual
-        returns (Tweet[] memory)
-    {
+    function getLikes(address _address) public view virtual returns (Tweet[] memory) {
         return likes[_address];
     }
 
+    // Retweet is kept forever. can not be removed.
+    // It's possible to retweet many times.
+    function addRetweet(uint256 _tokenId) public virtual {
+        Tweet memory latestTweet;
+        for (uint256 i = 0; i < tweets.length; i++) {
+            // original tweet only.
+            if (tweets[i].tokenId == _tokenId) {
+                tweets[i].retweets.push(msg.sender);
+                latestTweet = tweets[i];
+            }
+        }
+        tweets.push(latestTweet);
+    }
+
     // Get icon.
-    function getUserIcon(address _address)
-        public
-        view
-        virtual
-        returns (string memory)
-    {
+    function getUserIcon(address _address) public view virtual returns (string memory) {
         return users[_address].iconUrl;
     }
 
@@ -307,24 +268,18 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     }
 
     // Add comment to specific tweet.
-    function setComment(string memory _comment, uint256 _tokenId)
-        public
-        virtual
-    {
+    function setComment(string memory _comment, uint256 _tokenId) public virtual {
         uint256 supply = totalSupply();
-        require(_tokenId <= supply, "Invalid tokenId.");
+        require(_tokenId <= supply, "InvalidId");
 
         string memory iconUrl;
-        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+        if (users[msg.sender].iconUrl.notEmpty()) {
             iconUrl = users[msg.sender].iconUrl;
         }
 
         Tweet memory comment;
-        require(TweetValidation.notEmpty(_comment), "Tweet is too short");
-        require(
-            TweetValidation.noSpace(_comment),
-            "Space only tweet is not allowed."
-        );
+        require(_comment.notEmpty(), "TooShort");
+        require(_comment.noSpace(), "NoSpace");
         comment.tokenId = _tokenId;
         comment.content = _comment;
         comment.author = msg.sender;
@@ -336,36 +291,12 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     }
 
     // Get comments of specific tweet.
-    function getComments(uint256 _tokenId)
-        public
-        view
-        virtual
-        returns (Tweet[] memory)
-    {
+    function getComments(uint256 _tokenId) public view virtual returns (Tweet[] memory) {
         return comments[_tokenId];
     }
 
-    function tokenURI(uint256 _tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        require(
-            _exists(_tokenId),
-            "ERC721Metadata: URI query for nonexistent token"
-        );
-        return buildMetaData(_tokenId);
-    }
-
-    // Build metadata for ERC721 token.
-    function buildMetaData(uint256 _tokenId)
-        public
-        view
-        virtual
-        returns (string memory)
-    {
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(_exists(_tokenId));
         Tweet memory tweet;
         for (uint256 i = 0; i < tweets.length; i++) {
             if (tweets[i].tokenId == _tokenId) {
@@ -377,21 +308,19 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             string(
                 abi.encodePacked(
                     "data:application/json;base64,",
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name":"Tweet #',
-                                Strings.toString(_tokenId),
-                                '", "description":"',
-                                tweet.content,
-                                '", "image": "',
-                                TweetConstant.DEFAULT_IMAGE,
-                                '", "image_data": "',
-                                tweet.attachment,
-                                '"}'
-                            )
+                    bytes(
+                        abi.encodePacked(
+                            '{"name":"Tweet #',
+                            _tokenId.toString(),
+                            '", "description":"',
+                            tweet.content,
+                            '", "image": "',
+                            TweetConstant.DEFAULT_IMAGE,
+                            '", "image_data": "',
+                            tweet.attachment,
+                            '"}'
                         )
-                    )
+                    ).encode()
                 )
             );
     }

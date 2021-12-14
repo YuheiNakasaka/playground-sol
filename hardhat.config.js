@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
+require("hardhat-contract-sizer");
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
