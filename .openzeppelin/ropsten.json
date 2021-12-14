@@ -62,6 +62,11 @@
       "address": "0xba5a3643357CDD4542124E9F16350a1A7fC491b6",
       "txHash": "0x777f0b209551b100fce5d517a2fa948c72e3239f0a1bd2ed552489488c4b8e14",
       "kind": "transparent"
+    },
+    {
+      "address": "0x2783E1f92D68ccaE5b46e44F3fC4f0fD3C311e8b",
+      "txHash": "0xa5b7ebae5cc5cb7d07f9894f69b5f3b09078698396b8f3299a996ebd01f0b7be",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -717,6 +722,248 @@
                 "type": "t_address"
               }
             ]
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_array(t_uint256)46_storage": {
+            "label": "uint256[46]"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "223fef32a14f0f225ab7717561f7340608c496fd62480bdb9023ba331e0ce5b9": {
+      "address": "0xF628eD1eF3CD7ea9Bc587B887d1Fb2E90889ecC4",
+      "txHash": "0xffa31c852c798e2216fc2abc1b07f07566b672dbceeab8207029427120f95b65",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:37"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:42"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:36"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_owners",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_tokenApprovals",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:40"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:431"
+          },
+          {
+            "contract": "ERC721EnumerableUpgradeable",
+            "label": "_ownedTokens",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721EnumerableUpgradeable",
+            "label": "_ownedTokensIndex",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721EnumerableUpgradeable",
+            "label": "_allTokens",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721EnumerableUpgradeable",
+            "label": "_allTokensIndex",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721EnumerableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)46_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol:172"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "tweets",
+            "type": "t_array(t_struct(Tweet)3523_storage)dyn_storage",
+            "src": "contracts/TwitterV1.sol:30"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "users",
+            "type": "t_mapping(t_address,t_struct(User)3507_storage)",
+            "src": "contracts/TwitterV1.sol:31"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "followings",
+            "type": "t_mapping(t_address,t_array(t_struct(User)3507_storage)dyn_storage)",
+            "src": "contracts/TwitterV1.sol:34"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "followers",
+            "type": "t_mapping(t_address,t_array(t_struct(User)3507_storage)dyn_storage)",
+            "src": "contracts/TwitterV1.sol:35"
+          },
+          {
+            "contract": "TwitterV1",
+            "label": "likes",
+            "type": "t_mapping(t_address,t_array(t_struct(Tweet)3523_storage)dyn_storage)",
+            "src": "contracts/TwitterV1.sol:36"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(Tweet)3523_storage)dyn_storage": {
+            "label": "struct TwitterV1.Tweet[]"
+          },
+          "t_struct(Tweet)3523_storage": {
+            "label": "struct TwitterV1.Tweet",
+            "members": [
+              {
+                "label": "tokenId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "content",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "author",
+                "type": "t_address"
+              },
+              {
+                "label": "timestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "attachment",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "likes",
+                "type": "t_array(t_address)dyn_storage"
+              },
+              {
+                "label": "iconUrl",
+                "type": "t_string_storage"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_struct(User)3507_storage)": {
+            "label": "mapping(address => struct TwitterV1.User)"
+          },
+          "t_struct(User)3507_storage": {
+            "label": "struct TwitterV1.User",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_address"
+              },
+              {
+                "label": "iconUrl",
+                "type": "t_string_storage"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_array(t_struct(User)3507_storage)dyn_storage)": {
+            "label": "mapping(address => struct TwitterV1.User[])"
+          },
+          "t_array(t_struct(User)3507_storage)dyn_storage": {
+            "label": "struct TwitterV1.User[]"
+          },
+          "t_mapping(t_address,t_array(t_struct(Tweet)3523_storage)dyn_storage)": {
+            "label": "mapping(address => struct TwitterV1.Tweet[])"
           },
           "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
             "label": "mapping(address => mapping(uint256 => uint256))"

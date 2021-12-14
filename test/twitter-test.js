@@ -178,4 +178,22 @@ describe("Twitter", function () {
       expect(tweet.likes.includes(owner.address)).to.be.true;
     });
   });
+
+  describe("changeIconUrl/getUserIcon", function () {
+    it("Should change icon url", async function () {
+      const [owner] = await ethers.getSigners();
+      const Twitter = await ethers.getContractFactory("TwitterV1");
+      const twitter = await Twitter.deploy();
+      await twitter.deployed();
+
+      let url = await twitter.getUserIcon(owner.address);
+      expect(url).to.equal("");
+
+      let tx = await twitter.changeIconUrl("https://example.com/icon.png");
+      await tx.wait();
+
+      url = await twitter.getUserIcon(owner.address);
+      expect(url).to.equal("https://example.com/icon.png");
+    });
+  });
 });
