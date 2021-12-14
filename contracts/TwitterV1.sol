@@ -30,12 +30,16 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     Tweet[] public tweets;
     mapping(address => User) public users;
 
+    // For specifil tweet
+    mapping(uint256 => Tweet[]) public comments;
+
     // For specific users
     mapping(address => User[]) public followings;
     mapping(address => User[]) public followers;
     mapping(address => Tweet[]) public likes;
 
     event Tweeted(address indexed sender, string tweet);
+    event Commented(address indexed sender, string tweet);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -146,6 +150,24 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
             }
         }
 
+        return result;
+    }
+
+    function getTweet(uint256 _tokenId)
+        public
+        view
+        virtual
+        returns (Tweet memory)
+    {
+        Tweet memory result;
+        if (tweets.length == 0) {
+            return result;
+        }
+        for (uint256 i = 0; i < tweets.length; i++) {
+            if (tweets[i].tokenId == _tokenId) {
+                return tweets[i];
+            }
+        }
         return result;
     }
 
@@ -282,6 +304,45 @@ contract TwitterV1 is Initializable, ERC721EnumerableUpgradeable {
     function changeIconUrl(string memory _url) public virtual {
         users[msg.sender].id = msg.sender;
         users[msg.sender].iconUrl = _url;
+    }
+
+    // Add comment to specific tweet.
+    function setComment(string memory _comment, uint256 _tokenId)
+        public
+        virtual
+    {
+        uint256 supply = totalSupply();
+        require(_tokenId <= supply, "Invalid tokenId.");
+
+        string memory iconUrl;
+        if (TweetValidation.notEmpty(users[msg.sender].iconUrl)) {
+            iconUrl = users[msg.sender].iconUrl;
+        }
+
+        Tweet memory comment;
+        require(TweetValidation.notEmpty(_comment), "Tweet is too short");
+        require(
+            TweetValidation.noSpace(_comment),
+            "Space only tweet is not allowed."
+        );
+        comment.tokenId = _tokenId;
+        comment.content = _comment;
+        comment.author = msg.sender;
+        comment.timestamp = block.timestamp;
+        comment.iconUrl = iconUrl;
+        comments[_tokenId].push(comment);
+
+        emit Commented(msg.sender, _comment);
+    }
+
+    // Get comments of specific tweet.
+    function getComments(uint256 _tokenId)
+        public
+        view
+        virtual
+        returns (Tweet[] memory)
+    {
+        return comments[_tokenId];
     }
 
     function tokenURI(uint256 _tokenId)

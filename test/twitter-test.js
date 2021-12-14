@@ -67,6 +67,22 @@ describe("Twitter", function () {
     });
   });
 
+  describe("getTweet", function () {
+    it("Should return the tweet", async function () {
+      const [owner] = await ethers.getSigners();
+      const Twitter = await ethers.getContractFactory("TwitterV1");
+      const twitter = await Twitter.deploy();
+      await twitter.deployed();
+
+      let tx = await twitter.setTweet("Hello, world!", "");
+      await tx.wait();
+
+      const tweet = await twitter.getTweet(1);
+      expect(tweet.content).to.equal("Hello, world!");
+      expect(tweet.author).to.equal(owner.address);
+    });
+  });
+
   describe("follow", function () {
     it("Should follow user", async function () {
       const [owner, user] = await ethers.getSigners();
@@ -194,6 +210,26 @@ describe("Twitter", function () {
 
       url = await twitter.getUserIcon(owner.address);
       expect(url).to.equal("https://example.com/icon.png");
+    });
+  });
+
+  describe("setComment/getComments", function () {
+    it("Should add the comment", async function () {
+      const [owner] = await ethers.getSigners();
+      const Twitter = await ethers.getContractFactory("TwitterV1");
+      const twitter = await Twitter.deploy();
+      await twitter.deployed();
+
+      let tx = await twitter.setTweet("Hello, world!", "");
+      await tx.wait();
+
+      tx = await twitter.setComment("Hello, comment!", 1);
+      await tx.wait();
+
+      const comments = await twitter.getComments(1);
+      const comment = comments[0];
+      expect(comment.content).to.equal("Hello, comment!");
+      expect(comment.author).to.equal(owner.address);
     });
   });
 });
