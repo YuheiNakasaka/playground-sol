@@ -250,4 +250,21 @@ describe("Twitter", function () {
       expect(tweet.retweets.includes(owner.address)).to.be.true;
     });
   });
+
+  describe("tokenURI", function () {
+    it("Should return base64 encoded string", async function () {
+      const [owner] = await ethers.getSigners();
+      const Twitter = await ethers.getContractFactory("TwitterV1");
+      const twitter = await Twitter.deploy();
+      await twitter.deployed();
+
+      let tx = await twitter.setTweet("Hello, world!", "");
+      await tx.wait();
+
+      const tokenURI = await twitter.tokenURI(1);
+      expect(tokenURI).to.eq(
+        "data:application/json;base64,eyJuYW1lIjoiVHdlZXQgIzEiLCAiZGVzY3JpcHRpb24iOiJIZWxsbywgd29ybGQhIiwgImltYWdlIjogIjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWluWU1pbiBtZWV0IiB2aWV3Qm94PSIwIDAgMzUwIDM1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2FhYjhjMiI+PC9yZWN0Pjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PHAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiIGZvbnQtc2l6ZT0iMTJweCIgc3R5bGU9ImZvbnQtc2l6ZToxMHB4O3BhZGRpbmc6NXB4OyI+VHdlZXQjMTxici8+SGVsbG8sIHdvcmxkITxici8+PGltZyBzcmM9IiIvPjwvcD48L2ZvcmVpZ25PYmplY3Q+PC9zd2l0Y2g+PC9zdmc+In0="
+      );
+    });
+  });
 });
