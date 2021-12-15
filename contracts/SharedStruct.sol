@@ -18,5 +18,6 @@ library SharedStruct {
         address[] likes; // want to use User[] but not supported yet.
         address[] retweets;
         string iconUrl;
+        address retweetedBy;
     }
 }

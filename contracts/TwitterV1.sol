@@ -28,8 +28,8 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
     mapping(address => SharedStruct.User[]) public followers;
     mapping(address => SharedStruct.Tweet[]) public likes;
 
-    event Tweeted(address indexed sender, string tweet);
-    event Commented(address indexed sender, string tweet);
+    event Tweeted(address indexed sender);
+    event Commented(address indexed sender);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {
@@ -71,7 +71,7 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
             _safeMint(msg.sender, supply + 1);
         }
 
-        emit Tweeted(msg.sender, _tweet);
+        emit Tweeted(msg.sender);
     }
 
     function getTimeline(int256 offset, int256 limit) public view virtual returns (SharedStruct.Tweet[] memory) {
@@ -94,22 +94,26 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
         return result;
     }
 
+    // Get user's tweets and retweets.
     function getUserTweets(address _address) public view virtual returns (SharedStruct.Tweet[] memory) {
-        if (tweets.length == 0) {
-            return new SharedStruct.Tweet[](0);
-        }
-
         uint256 count = 0;
         for (uint256 i = 0; i < tweets.length; i++) {
-            if (tweets[i].author == _address) {
+            // original own tweets and own retweeted tweets
+            if (
+                (tweets[i].author == _address && tweets[i].retweetedBy == address(0)) ||
+                tweets[i].retweetedBy == _address
+            ) {
                 count++;
             }
         }
 
         SharedStruct.Tweet[] memory result = new SharedStruct.Tweet[](count);
         uint256 idx = 0;
-        for (int256 i = int256(tweets.length - 1); 0 <= i; i--) {
-            if (tweets[uint256(i)].author == _address) {
+        for (int256 i = int256(tweets.length - 1); 0 <= i; --i) {
+            if (
+                (tweets[uint256(i)].author == _address && tweets[uint256(i)].retweetedBy == address(0)) ||
+                tweets[uint256(i)].retweetedBy == _address
+            ) {
                 result[idx] = tweets[uint256(i)];
                 idx++;
             }
@@ -118,13 +122,14 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
         return result;
     }
 
+    // Get original tweet without retweets.
     function getTweet(uint256 _tokenId) public view virtual returns (SharedStruct.Tweet memory) {
         SharedStruct.Tweet memory result;
         if (tweets.length == 0) {
             return result;
         }
         for (uint256 i = 0; i < tweets.length; i++) {
-            if (tweets[i].tokenId == _tokenId) {
+            if (tweets[i].tokenId == _tokenId && tweets[i].retweetedBy == address(0)) {
                 result = tweets[i];
                 break;
             }
@@ -144,7 +149,7 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
             otherIconUrl = users[_address].iconUrl;
         }
 
-        bool _exists = false;
+        bool _exists;
         for (uint256 i = 0; i < followings[msg.sender].length; i++) {
             if (followings[msg.sender][i].id == _address) {
                 _exists = true;
@@ -230,14 +235,17 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
     // Retweet is kept forever. can not be removed.
     // It's possible to retweet many times.
     function addRetweet(uint256 _tokenId) public virtual {
-        SharedStruct.Tweet memory latestTweet;
+        SharedStruct.Tweet memory myRetweet;
         for (uint256 i = 0; i < tweets.length; i++) {
             if (tweets[i].tokenId == _tokenId) {
                 tweets[i].retweets.push(msg.sender);
-                latestTweet = tweets[i];
+                myRetweet = tweets[i];
+                myRetweet.retweetedBy = msg.sender;
+                break;
             }
         }
-        tweets.push(latestTweet);
+        tweets.push(myRetweet);
+        emit Tweeted(msg.sender);
     }
 
     // Get icon.
@@ -273,7 +281,7 @@ contract TwitterV1 is Initializable, ERC721Upgradeable {
         comment.iconUrl = iconUrl;
         comments[_tokenId].push(comment);
 
-        emit Commented(msg.sender, _comment);
+        emit Commented(msg.sender);
     }
 
     // Get comments of specific tweet.

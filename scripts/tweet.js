@@ -14,10 +14,11 @@ async function tweet() {
   );
   const signerOfProvider = provider.getSigner();
   const signer = twContract.connect(signerOfProvider);
-  const resp = await signer.setTweet(
-    "Hello, World!!!!! from other account",
-    ""
-  );
+  // const resp = await signer.setTweet(
+  //   "Hello, World!!!!! from other account2",
+  //   ""
+  // );
+  const resp = await signer.addRetweet(3);
   // const resp = await signer.follow("Hello, World!!!!!");
 }
 

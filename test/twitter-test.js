@@ -30,7 +30,7 @@ describe("Twitter", function () {
   });
 
   describe("getUserTweets", function () {
-    it("Should return the tweet", async function () {
+    it("Should return the tweets order by timestamp desc", async function () {
       const [owner] = await ethers.getSigners();
       const Twitter = await ethers.getContractFactory("TwitterV1");
       const twitter = await Twitter.deploy();
@@ -246,8 +246,13 @@ describe("Twitter", function () {
       await twitter.addRetweet(1);
       await tx.wait();
 
-      const tweet = await twitter.getTweet(1);
-      expect(tweet.retweets.includes(owner.address)).to.be.true;
+      let tweets = await twitter.getTimeline(0, 2);
+      expect(tweets[1].retweets.includes(owner.address)).to.be.true;
+      expect(tweets[1].retweetedBy).to.eq(
+        "0x0000000000000000000000000000000000000000"
+      );
+      expect(tweets[0].retweets.includes(owner.address)).to.be.true;
+      expect(tweets[0].retweetedBy).to.eq(owner.address);
     });
   });
 
