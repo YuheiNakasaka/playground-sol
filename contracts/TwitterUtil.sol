@@ -29,15 +29,19 @@ library TwitterUtil {
                             _tokenId.toString(),
                             '", "description":"',
                             _tweet.content,
-                            '", "image": "',
-                            '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><rect width="100%" height="100%" fill="#aab8c2"></rect><switch><foreignObject x="0" y="0" width="100%" height="100%"><p xmlns="http://www.w3.org/1999/xhtml" font-size="12px" style="font-size:10px;padding:5px;">',
-                            "Tweet#",
-                            _tokenId.toString(),
-                            "<br/>",
-                            _tweet.content,
-                            '<br/><img src="',
-                            _tweet.attachment,
-                            '"/></p></foreignObject></switch></svg>',
+                            '", "image": "data:image/svg+xml;base64,',
+                            bytes(
+                                abi.encodePacked(
+                                    '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><rect width="100%" height="100%" fill="#aab8c2"></rect><switch><foreignObject x="0" y="0" width="100%" height="100%"><p xmlns="http://www.w3.org/1999/xhtml" font-size="12px" style="font-size:10px;padding:5px;">',
+                                    "Tweet#",
+                                    _tokenId.toString(),
+                                    "<br/>",
+                                    _tweet.content,
+                                    '<br/><img src="',
+                                    _tweet.attachment,
+                                    '"/></p></foreignObject></switch></svg>'
+                                )
+                            ).encode(),
                             '"}'
                         )
                     ).encode()
